@@ -111,13 +111,21 @@ class LogicalPath(Path):
 
         for i, node_numbers in enumerate(nodes_numbers[1:], start=1):
 
-            flatten_path_node = [k for k, g in groupby(flatten(nodes_list[i - 1]))]
+            flatten_path_node = flatten(nodes_list[i - 1])
+
+            # with None ignore
+            grouped_path_node = list(flatten(
+                [
+                    k if k is not None else list(g)
+                    for k, g in groupby(flatten_path_node)
+                ]
+            ))
 
             for j in node_numbers:
-                if flatten_path_node[j] is None:
+                if grouped_path_node[j] is None:
                     trace[i].append(trace[i - 1][j])
                 else:
-                    trace[i].append(flatten_path_node[j])
+                    trace[i].append(grouped_path_node[j])
 
         return trace
 
