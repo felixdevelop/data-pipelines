@@ -1,6 +1,7 @@
 from copy import deepcopy
 from functools import lru_cache
 from collections import Iterable
+from itertools import groupby
 
 
 def flatten(items):
@@ -110,7 +111,7 @@ class LogicalPath(Path):
 
         for i, node_numbers in enumerate(nodes_numbers[1:], start=1):
 
-            flatten_path_node = list(flatten(nodes_list[i - 1]))
+            flatten_path_node = [k for k, g in groupby(flatten(nodes_list[i - 1]))]
 
             for j in node_numbers:
                 if flatten_path_node[j] is None:
