@@ -109,30 +109,37 @@ class LogicalPath(Path):
 
                 nodes_numbers[i] += [j] * len(node_element)
 
+        ignore_nodes = [[]]
+
+        for i, node in enumerate(nodes_list[1:], start=1):
+            flatten_node = list(flatten(node))
+            ignore_nodes_elements = []
+
+            for j, node_element_first in enumerate(flatten_node):
+                for k, node_element_second in enumerate(flatten_node[j+1:], start=j+1):
+                    if node_element_first is not None and node_element_first == node_element_second:
+                        ignore_nodes_elements.append(k)
+
+            ignore_nodes.append(list(set(ignore_nodes_elements)))
+
         for i, node_numbers in enumerate(nodes_numbers[1:], start=1):
-
-            flatten_path_node = flatten(nodes_list[i - 1])
-
-            # with None ignore
-            grouped_path_node = list(flatten(
+            flatten_path_nodes_layer = flatten(nodes_list[i - 1])
+            grouped_path_nodes_layer = list(flatten(
                 [
                     k if k is not None else list(g)
-                    for k, g in groupby(flatten_path_node)
+                    for k, g in groupby(flatten_path_nodes_layer)
                 ]
             ))
 
-            grouped_trace_node = list(flatten(
-                [
-                    k if k is not None else list(g)
-                    for k, g in groupby(trace[i - 1])
-                ]
-            ))
+            trace_nodes_layer = list(trace[i - 1])
+            for ignore_j in reversed(ignore_nodes[i - 1]):
+                trace_nodes_layer.pop(ignore_j)
 
             for j in node_numbers:
-                if grouped_path_node[j] is None:
-                    trace[i].append(grouped_trace_node[j])
-                else:
-                    trace[i].append(grouped_path_node[j])
+                    if grouped_path_nodes_layer[j] is not None:
+                        trace[i].append(grouped_path_nodes_layer[j])
+                    else:
+                        trace[i].append(trace_nodes_layer[j])
 
         return trace
 
